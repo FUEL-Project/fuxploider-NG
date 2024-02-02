@@ -1,6 +1,12 @@
 [
 	{"suffix":".$nastyExt$","mime":"nasty"},
 	{"suffix":".$nastyExt$","mime":"legit"},
+
+	{"suffix":".$nastyExt1$.$nastyExt$$nastyExt2$","mime":"legit"},
+	{"suffix":".$nastyExt1$.$nastyExt$$nastyExt2$","mime":"nasty"},
+	{"suffix":".$nastyExt1$$nastyExt$$nastyExt2$","mime":"legit"},
+	{"suffix":".$nastyExt1$$nastyExt$$nastyExt2$","mime":"nasty"},
+
 	
 	{"suffix":".$nastyExt$.$legitExt$","mime":"nasty"},
 	{"suffix":".$nastyExt$.$legitExt$","mime":"legit"},

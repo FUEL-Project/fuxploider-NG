@@ -109,6 +109,7 @@ class UploadForm:
             else:
                 filename = os.path.basename(fd.name)
             filename_wo_ext = filename.split('.', 1)[0]
+            filename_stripped =  filename_wo_ext +"."+ (filename.split('.',1)[1])[:2] + (filename.split('.',1)[1])[-1:]
             if dynamicPayload:
                 payload = payload.replace(b"$filename$", bytearray(filename_wo_ext, 'ascii'))
             fd.write(payload)
@@ -128,7 +129,7 @@ class UploadForm:
                 if self.logger.verbosity > 2:
                     print(f"\033[36m{fileUploadResponse}\033[m")
 
-        return (fileUploadResponse, filename, filename_wo_ext)
+        return (fileUploadResponse, filename, filename_wo_ext, filename_stripped)
 
     # Detects if a given html code represents an upload success or not.
     def isASuccessfulUpload(self, html):
@@ -210,7 +211,7 @@ class UploadForm:
         if self.shouldLog:
             if self.logger.verbosity > 0:
                 self.logger.debug("Requesting %s ...", url)
-
+        print(url)
         r = self.session.get(url)
         if self.shouldLog:
             if r.status_code >= 400:
@@ -249,6 +250,7 @@ class UploadForm:
 
         if self.uploadsFolder or self.trueRegex or codeExecURL:
             url = None
+            url2 = None
             secondUrl = None
             if self.uploadsFolder or codeExecURL:
                 if codeExecURL:
@@ -257,6 +259,7 @@ class UploadForm:
                                      .replace("$filename$", filename_wo_ext)
                 else:
                     url = f"{self.schema}://{self.host}/{self.uploadsFolder}/{fu[1]}"
+                    url2 = f"{self.schema}://{self.host}/{self.uploadsFolder}/{fu[3]}"
                 filename = fu[1]
                 secondUrl = None
                 for byte in getPoisoningBytes():
@@ -271,6 +274,11 @@ class UploadForm:
                 if executedCode:
                     result["codeExec"] = True
                     result["url"] = url
+            if url2:
+                executedCode = self.detectCodeExec(url2, codeExecRegex)
+                if executedCode:
+                    result["codeExec"] = True
+                    result["url"] = url2
             if secondUrl:
                 executedCode = self.detectCodeExec(secondUrl, codeExecRegex)
                 if executedCode:

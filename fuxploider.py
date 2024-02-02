@@ -329,7 +329,10 @@ for template in templates:
                 legitMime = getMime(extensions, legitExt) #double?
                 mime = legitMime if technique["mime"] == "legit" else nastyMime
                 suffix = technique["suffix"].replace("$legitExt$", legitExt) \
-                                            .replace("$nastyExt$", nastyVariant)
+                                            .replace("$nastyExt$", nastyVariant) \
+                                            .replace("$nastyExt1$", nastyVariant[:-1]) \
+                                            .replace("$nastyExt2$", nastyVariant[-1:])
+                print(suffix)
                 attempts.append({
                     "suffix": suffix,
                     "mime": mime,
