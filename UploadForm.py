@@ -211,7 +211,6 @@ class UploadForm:
         if self.shouldLog:
             if self.logger.verbosity > 0:
                 self.logger.debug("Requesting %s ...", url)
-        print(url)
         r = self.session.get(url)
         if self.shouldLog:
             if r.status_code >= 400:

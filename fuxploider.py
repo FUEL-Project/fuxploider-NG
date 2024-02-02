@@ -332,7 +332,6 @@ for template in templates:
                                             .replace("$nastyExt$", nastyVariant) \
                                             .replace("$nastyExt1$", nastyVariant[:-1]) \
                                             .replace("$nastyExt2$", nastyVariant[-1:])
-                print(suffix)
                 attempts.append({
                     "suffix": suffix,
                     "mime": mime,
