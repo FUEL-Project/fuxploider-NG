@@ -315,6 +315,7 @@ for template in templates:
         legitMime = getMime(extensions, legitExt) #double?
         if nastyExt is None:
             attempts.append({
+                "prefix": "",
                 "suffix": "." + legitExt,
                 "mime": legitMime,
                 "templateName": template["templateName"],
@@ -332,7 +333,9 @@ for template in templates:
                                             .replace("$nastyExt$", nastyVariant) \
                                             .replace("$nastyExt1$", nastyVariant[:-1]) \
                                             .replace("$nastyExt2$", nastyVariant[-1:])
+                prefix = technique["prefix"]
                 attempts.append({
+                    "prefix": prefix,
                     "suffix": suffix,
                     "mime": mime,
                     "templateName": template["templateName"],
@@ -341,7 +344,7 @@ for template in templates:
                     "payloadFilename": template["filename"],
                     "staticFilename": staticFilename
                 })
-
+               
 
 stopThreads = False
 
@@ -355,6 +358,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
             # If template uses a static filename, set the suffix to that of the filename.
             if a["staticFilename"]:
                 a["suffix"] = payloadFilename.split('.', 1)[1]
+            prefix = a["prefix"]
             suffix = a["suffix"]
             mime = a["mime"]
             payload = templatesData[a["templateName"]]
@@ -365,6 +369,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
 
             f = executor.submit(
                 up.submitTestCase,
+                prefix,
                 suffix,
                 mime,
                 payload,

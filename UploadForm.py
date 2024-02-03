@@ -101,9 +101,9 @@ class UploadForm:
                                     "(Except for templates with a custom codeExecURL)")
 
     # Tries to upload a file through the file upload form.
-    def uploadFile(self, suffix, mime, payload,
+    def uploadFile(self,prefix, suffix, mime, payload,
                    dynamicPayload=False, payloadFilename=None, staticFilename=False):
-        with tempfile.NamedTemporaryFile(suffix=suffix) as fd:
+        with tempfile.NamedTemporaryFile(suffix=suffix, prefix=prefix) as fd:
             if staticFilename:
                 filename = payloadFilename
             else:
@@ -128,7 +128,7 @@ class UploadForm:
                     printSimpleResponseObject(fileUploadResponse)
                 if self.logger.verbosity > 2:
                     print(f"\033[36m{fileUploadResponse}\033[m")
-
+        filename = filename.replace("%2f","/")
         return (fileUploadResponse, filename, filename_wo_ext, filename_stripped)
 
     # Detects if a given html code represents an upload success or not.
@@ -224,14 +224,14 @@ class UploadForm:
         res = re.search(regex, r.text)
         return bool(res)
 
-    def submitTestCase(self, suffix, mime,
+    def submitTestCase(self,prefix, suffix, mime,
                        payload=None, codeExecRegex=None, codeExecURL=None,
                        dynamicPayload=False, payloadFilename=None, staticFilename=False):
         """Generate a temporary file using a suffixed name, a mime type and
         content.  Upload the temp file on the server and eventually try to
         detect if code execution is gained through the uploaded file.
         """
-        fu = self.uploadFile(suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
+        fu = self.uploadFile(prefix, suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
         uploadRes = self.isASuccessfulUpload(fu[0].text)
         result = {"uploaded": False, "codeExec": False}
         if not uploadRes:
