@@ -185,6 +185,7 @@ class UploadForm:
             try:
                 for ext in extensionsToTest:
                     f = executor.submit(
+                        "",
                         self.uploadFile,
                         "." + ext[0],
                         ext[1],
