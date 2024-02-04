@@ -12,6 +12,7 @@ import signal
 import coloredlogs
 import requests
 import sys
+import pprint
 
 from utils import *
 from UploadForm import UploadForm
@@ -304,16 +305,22 @@ for template in templates:
     nastyExt = template.get("nastyExt")
     nastyMime = None if nastyExt is None else getMime(extensions, nastyExt)
     nastyExtVariants = template.get("extVariants")
+    ttype = template.get("type")
     ##### only for imagetragick #####
     codeExecURL = template.get("codeExecURL")
     dynamicPayload = template.get("dynamicPayload")
     ##### only for htaccess #####
     staticFilename = template.get("staticFilename")
+    ##### only for XSS #####
+    contenttypes = template.get("contentTypes")
+    matchstrings = template.get("matchStrings")
+
 
     for legitExt in up.validExtensions:
         legitMime = getMime(extensions, legitExt) #double?
         if nastyExt is None:
             attempts.append({
+                "type": ttype,
                 "prefix": "",
                 "suffix": "." + legitExt,
                 "mime": legitMime,
@@ -321,7 +328,9 @@ for template in templates:
                 "codeExecURL": codeExecURL,
                 "dynamicPayload": dynamicPayload,
                 "payloadFilename": template["filename"],
-                "staticFilename": staticFilename
+                "staticFilename": staticFilename,
+                "contentTypes": contenttypes,
+                "matchStrings": matchstrings
             })
             continue
         for technique in techniques:
@@ -334,6 +343,7 @@ for template in templates:
                                             .replace("$nastyExt2$", nastyVariant[-1:])
                 prefix = technique["prefix"]
                 attempts.append({
+                    "type": ttype,
                     "prefix": prefix,
                     "suffix": suffix,
                     "mime": mime,
@@ -341,13 +351,15 @@ for template in templates:
                     "codeExecURL": codeExecURL,
                     "dynamicPayload": dynamicPayload,
                     "payloadFilename": template["filename"],
-                    "staticFilename": staticFilename
+                    "staticFilename": staticFilename,
+                    "contentTypes": contenttypes,
+                    "matchStrings": matchstrings
                 })
 def print_results():
     d = datetime.datetime.now()
     logging.info("%s entry point(s) found using %s HTTP requests.", nbOfEntryPointsFound, up.httpRequests)
     print("\nFound the following entry points: ")
-    print(entryPoints)                              
+    pprint.pprint(entryPoints)                              
 
 stopThreads = False
 
@@ -365,10 +377,19 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
             suffix = a["suffix"]
             mime = a["mime"]
             payload = templatesData[a["templateName"]]
-            codeExecRegex = [t["codeExecRegex"] for t in templates if t["templateName"] == a["templateName"]][0]
+            ttype = a["type"]
+
+            template = [t for t in templates if t["templateName"] == a["templateName"]][0]
+            if 'codeExecRegex' in template:
+                codeExecRegex = template["codeExecRegex"]
+            else:
+                codeExecRegex = None
+
             codeExecURL = a["codeExecURL"]
             dynamicPayload = a["dynamicPayload"]
             staticFilename = a["staticFilename"]
+            contentTypes = a["contentTypes"]
+            matchStrings = a["matchStrings"]
 
             f = executor.submit(
                 up.submitTestCase,
@@ -380,7 +401,10 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
                 codeExecURL,
                 dynamicPayload,
                 payloadFilename,
-                staticFilename
+                staticFilename,
+                ttype,
+                contentTypes,
+                matchStrings
             )
             f.a = a
             futures.append(f)
@@ -395,7 +419,10 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
                 codeExecURL,
                 dynamicPayload,
                 payloadFilename,
-                staticFilename
+                staticFilename,
+                ttype,
+                contentTypes,
+                matchStrings
             )
             f2.a = a
             futures.append(f2)
@@ -414,10 +441,20 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
                     nbOfEntryPointsFound += 1
                     entryPoints.append(foundEntryPoint)
 
-                    if not args.detectAllEntryPoints:
-                        print_results()
-                        os.kill(os.getpid(), signal.SIGTERM)
-                        raise KeyboardInterrupt
+                elif res["xss"]:
+                    foundEntryPoint = future.a
+                    logging.info("\033[1m\033[42mXSS execution obtained ('%s','%s','%s','%s')\033[m",
+                                 foundEntryPoint["suffix"],
+                                 foundEntryPoint["mime"],
+                                 foundEntryPoint["templateName"],
+                                 res["url"])
+                    nbOfEntryPointsFound += 1
+                    entryPoints.append(foundEntryPoint)
+
+                if not args.detectAllEntryPoints:
+                    print_results()
+                    os.kill(os.getpid(), signal.SIGTERM)
+                    raise KeyboardInterrupt
 
     except KeyboardInterrupt:
         stopThreads = True

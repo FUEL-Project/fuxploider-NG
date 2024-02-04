@@ -276,16 +276,49 @@ class UploadForm:
         res = re.search(regex, r.text)
         return bool(res)
 
+    def detectXSS(self, url, contentTypes, matchStrings):
+        """Detect if a XSS is gained, given an rul to request and a
+        regex pattern to match the executed code output.
+        """
+        if self.shouldLog:
+            if self.logger.verbosity > 0:
+                self.logger.debug("Requesting %s ...", url)
+        r = self.session.get(url)
+        if self.shouldLog:
+            if r.status_code >= 400:
+                self.logger.warning("XSS detection returned an http code of %s.", r.status_code)
+            self.httpRequests += 1
+            if self.logger.verbosity > 1:
+                printSimpleResponseObject(r)
+            if self.logger.verbosity > 2:
+                print(f"\033[36m{r.text}\033[m")
+
+        has_xss_payload = False
+        for s in matchStrings:
+            if s.encode() in r.content:
+                has_xss_payload = True
+                break
+
+        has_correct_contenttype = False
+        for ctype in contentTypes:
+            if ctype in r.headers.get('content-type', '').lower():
+                has_correct_contenttype = True
+
+        if has_xss_payload and has_correct_contenttype:
+            return True
+        else:
+            return False
+
     def submitTestCase(self,prefix, suffix, mime,
                        payload=None, codeExecRegex=None, codeExecURL=None,
-                       dynamicPayload=False, payloadFilename=None, staticFilename=False):
+                       dynamicPayload=False, payloadFilename=None, staticFilename=False, ttype=None, contentTypes=None, matchStrings=None):
         """Generate a temporary file using a suffixed name, a mime type and
         content.  Upload the temp file on the server and eventually try to
         detect if code execution is gained through the uploaded file.
         """
         fu = self.uploadFile(prefix, suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
         uploadRes = self.isASuccessfulUpload(fu[0].text)
-        result = {"uploaded": False, "codeExec": False}
+        result = {"uploaded": False, "codeExec": False, "xss": False}
         if not uploadRes:
             return result
 
@@ -296,10 +329,7 @@ class UploadForm:
         if uploadRes is True and self.shouldLog:
             self.logger.info("\033[1;32m\tTrue regex matched the following information: %s\033[m", uploadRes)
 
-        if not codeExecRegex or not valid_regex(codeExecRegex):
-            return result
-
-        if self.uploadsFolder or self.trueRegex or codeExecURL:
+        if self.uploadsFolder or codeExecURL:
             url = None
             url2 = None
             secondUrl = None
@@ -319,6 +349,12 @@ class UploadForm:
             elif self.codeExecUrlPattern:
                 #code exec detection through true regex
                 url = self.codeExecUrlPattern.replace("$captGroup$", uploadRes)
+        else:
+            return result
+
+        if ttype == "rce":
+            if not codeExecRegex or not valid_regex(codeExecRegex):
+                return result
 
             if url:
                 executedCode = self.detectCodeExec(url, codeExecRegex)
@@ -335,20 +371,41 @@ class UploadForm:
                 if executedCode:
                     result["codeExec"] = True
                     result["url"] = secondUrl
+
+        elif ttype == "xss":
+            if not matchStrings:
+                return result
+
+            if url:
+                executedCode = self.detectXSS(url, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = url
+            if url2:
+                executedCode = self.detectXSS(url2, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = url2
+            if secondUrl:
+                executedCode = self.detectXSS(secondUrl, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = secondUrl
+        else:
+            raise Exception("Not implemented")
+
         return result
 
     def submitTestCase2(self,prefix, suffix, mime,
                        payload=None, codeExecRegex=None, codeExecURL=None,
-                       dynamicPayload=False, payloadFilename=None, staticFilename=False):
+                       dynamicPayload=False, payloadFilename=None, staticFilename=False, ttype=None, contentTypes=None, matchStrings=None):
         
         fu = self.uploadFile2(prefix, suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
-        result = {"uploaded": False, "codeExec": False}
+        result = {"uploaded": False, "codeExec": False, "xss": False}
         # assume that upload was succesful
         result["uploaded"] = True
-        if not codeExecRegex or not valid_regex(codeExecRegex):
-            return result
 
-        if self.uploadsFolder or self.trueRegex or codeExecURL:
+        if self.uploadsFolder or codeExecURL:
             url = None
             url2 = None
             secondUrl = None
@@ -367,6 +424,12 @@ class UploadForm:
                         secondUrl = byte.join(url.split(byte)[:-1])
             elif self.codeExecUrlPattern:
                 url = self.codeExecUrlPattern.replace("$captGroup$", "")
+        else:
+            return result
+
+        if ttype == "rce":
+            if not codeExecRegex or not valid_regex(codeExecRegex):
+                return result
 
             if url:
                 executedCode = self.detectCodeExec(url, codeExecRegex)
@@ -385,9 +448,36 @@ class UploadForm:
                 if executedCode:
                     result["codeExec"] = True
                     result["url"] = secondUrl
+
+        elif ttype == "xss":
+            if not matchStrings:
+                return result
+
+            if url:
+                executedCode = self.detectXSS(url, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = url
+            if url2:
+                
+                executedCode = self.detectXSS(url2, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = url2
+            if secondUrl:
+                
+                executedCode = self.detectXSS(secondUrl, contentTypes, matchStrings)
+                if executedCode:
+                    result["xss"] = True
+                    result["url"] = secondUrl
+        else:
+            raise Exception("Not implemented")
+
         if result["codeExec"] == True:
-            logging.info("Found payload using Race condition method Note that the file might not exist anymore")
-        
+            logging.info("Found RCE payload using Race condition method Note that the file might not exist anymore")
+        elif result['xss'] == True:
+            logging.info("Found XSS payload using Race condition method Note that the file might not exist anymore")
+
         return result
     
     @staticmethod
