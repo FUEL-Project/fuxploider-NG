@@ -184,13 +184,34 @@ class UploadForm:
             futures = []
             try:
                 for ext in extensionsToTest:
-                    f = executor.submit(
-                        self.uploadFile,
-                        "",
-                        "." + ext[0],
-                        ext[1],
-                        os.urandom(self.size)
-                    )
+                    with open("payloads/template.png", "rb") as f:
+                        payload = f.read()
+                    if ext[0] == "png":
+                        f = executor.submit(
+                            self.uploadFile,
+                            "",
+                            "." + ext[0],
+                            ext[1],
+                            payload
+                        )
+                    elif ext[0] == "gif":
+                        with open("payloads/template.gif", "rb") as f:
+                            payload = f.read()
+                        f = executor.submit(
+                            self.uploadFile,
+                            "",
+                            "." + ext[0],
+                            ext[1],
+                            payload
+                        )
+                    else:
+                        f = executor.submit(
+                            self.uploadFile,
+                            "",
+                            "." + ext[0],
+                            ext[1],
+                            os.urandom(self.size)
+                        )
                     f.ext = ext
                     f.add_done_callback(self.detectValidExtension)
                     futures.append(f)
