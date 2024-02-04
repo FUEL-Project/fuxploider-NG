@@ -154,6 +154,9 @@ class UploadForm:
                 )
             except requests.exceptions.ReadTimeout:
                 fileUploadResponse = None
+            except requests.exceptions.ConnectionError:
+                fileUploadResponse = None
+
             self.httpRequests += 1
         filename = filename.replace("%2f","/")
         return (fileUploadResponse, filename, filename_wo_ext, filename_stripped)    
