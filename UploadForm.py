@@ -116,7 +116,7 @@ class UploadForm:
             fd.flush()
             fd.seek(0)
             if self.shouldLog:
-                self.logger.debug("Sending file %s with mime type: %s", filename, mime)
+                self.logger.debug("Sending file %s with mime type: %s", filename, mime)           
             fileUploadResponse = self.session.post(
                 self.uploadUrl,
                 files={self.inputName: (filename, fd, mime)},
@@ -130,6 +130,33 @@ class UploadForm:
                     print(f"\033[36m{fileUploadResponse}\033[m")
         filename = filename.replace("%2f","/")
         return (fileUploadResponse, filename, filename_wo_ext, filename_stripped)
+    
+    def uploadFile2(self,prefix, suffix, mime, payload,
+                   dynamicPayload=False, payloadFilename=None, staticFilename=False):
+        with tempfile.NamedTemporaryFile(suffix=suffix, prefix=prefix) as fd:
+            if staticFilename:
+                filename = payloadFilename
+            else:
+                filename = os.path.basename(fd.name)
+            filename_wo_ext = filename.split('.', 1)[0]
+            filename_stripped =  filename_wo_ext +"."+ (filename.split('.',1)[1])[:2] + (filename.split('.',1)[1])[-1:]
+            if dynamicPayload:
+                payload = payload.replace(b"$filename$", bytearray(filename_wo_ext, 'ascii'))
+            fd.write(payload)
+            fd.flush()
+            fd.seek(0)
+            try:
+                fileUploadResponse = self.session.post(
+                    self.uploadUrl,
+                    files={self.inputName: (filename, fd, mime)},
+                    data=self.postData,
+                    timeout=0.000000001
+                )
+            except requests.exceptions.ReadTimeout:
+                fileUploadResponse = None
+            self.httpRequests += 1
+        filename = filename.replace("%2f","/")
+        return (fileUploadResponse, filename, filename_wo_ext, filename_stripped)    
 
     # Detects if a given html code represents an upload success or not.
     def isASuccessfulUpload(self, html):
@@ -307,6 +334,59 @@ class UploadForm:
                     result["url"] = secondUrl
         return result
 
+    def submitTestCase2(self,prefix, suffix, mime,
+                       payload=None, codeExecRegex=None, codeExecURL=None,
+                       dynamicPayload=False, payloadFilename=None, staticFilename=False):
+        
+        fu = self.uploadFile2(prefix, suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
+        result = {"uploaded": False, "codeExec": False}
+        # assume that upload was succesful
+        result["uploaded"] = True
+        if not codeExecRegex or not valid_regex(codeExecRegex):
+            return result
+
+        if self.uploadsFolder or self.trueRegex or codeExecURL:
+            url = None
+            url2 = None
+            secondUrl = None
+            if self.uploadsFolder or codeExecURL:
+                if codeExecURL:
+                    filename_wo_ext = fu[2]
+                    url = codeExecURL.replace("$uploadFormDir$", os.path.dirname(self.uploadUrl)) \
+                                     .replace("$filename$", filename_wo_ext)
+                else:
+                    url = f"{self.schema}://{self.host}/{self.uploadsFolder}/{fu[1]}"
+                    url2 = f"{self.schema}://{self.host}/{self.uploadsFolder}/{fu[3]}"
+                filename = fu[1]
+                secondUrl = None
+                for byte in getPoisoningBytes():
+                    if byte in filename:
+                        secondUrl = byte.join(url.split(byte)[:-1])
+            elif self.codeExecUrlPattern:
+                url = self.codeExecUrlPattern.replace("$captGroup$", uploadRes)
+
+            if url:
+                executedCode = self.detectCodeExec(url, codeExecRegex)
+                if executedCode:
+                    result["codeExec"] = True
+                    result["url"] = url
+            if url2:
+                
+                executedCode = self.detectCodeExec(url2, codeExecRegex)
+                if executedCode:
+                    result["codeExec"] = True
+                    result["url"] = url2
+            if secondUrl:
+                
+                executedCode = self.detectCodeExec(secondUrl, codeExecRegex)
+                if executedCode:
+                    result["codeExec"] = True
+                    result["url"] = secondUrl
+        if result["codeExec"] == True:
+            logging.info("Found payload using Race condition method Note that the file might not exist anymore")
+        
+        return result
+    
     @staticmethod
     def detectForms(html):
         """Detect HTML forms.

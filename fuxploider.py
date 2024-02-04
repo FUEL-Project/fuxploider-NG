@@ -291,7 +291,6 @@ up.stopThreads = True
 
 with open("techniques.json", "r") as rawTechniques:
     techniques = json.loads(rawTechniques.read())
-    #print(techniques)
 logger.info("### Starting code execution detection "
             "(messing with file extensions and mime types...)")
 c = datetime.datetime.now()
@@ -381,6 +380,21 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
             )
             f.a = a
             futures.append(f)
+
+            f2 = executor.submit(
+                up.submitTestCase2,
+                prefix,
+                suffix,
+                mime,
+                payload,
+                codeExecRegex,
+                codeExecURL,
+                dynamicPayload,
+                payloadFilename,
+                staticFilename
+            )
+            f2.a = a
+            futures.append(f2)
 
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
