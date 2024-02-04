@@ -293,21 +293,25 @@ class UploadForm:
             if self.logger.verbosity > 2:
                 print(f"\033[36m{r.text}\033[m")
 
+        return self.matchXSS(r.content, r.headers, contentTypes, matchStrings)
+
+    def matchXSS(self, content, headers, contentTypes, matchStrings):
         has_xss_payload = False
         for s in matchStrings:
-            if s.encode() in r.content:
+            if s.encode() in content:
                 has_xss_payload = True
                 break
 
         has_correct_contenttype = False
         for ctype in contentTypes:
-            if ctype in r.headers.get('content-type', '').lower():
+            if ctype in headers.get('content-type', '').lower():
                 has_correct_contenttype = True
 
         if has_xss_payload and has_correct_contenttype:
             return True
         else:
             return False
+
 
     def submitTestCase(self,prefix, suffix, mime,
                        payload=None, codeExecRegex=None, codeExecURL=None,
@@ -317,8 +321,14 @@ class UploadForm:
         detect if code execution is gained through the uploaded file.
         """
         fu = self.uploadFile(prefix, suffix, mime, payload, dynamicPayload, payloadFilename, staticFilename)
-        uploadRes = self.isASuccessfulUpload(fu[0].text)
+        # if staticFilename == "<img src...." and staticFilename in fu[0].text and fu[0].content_type == "text/html":
+        #     xss = True
         result = {"uploaded": False, "codeExec": False, "xss": False}
+        if ttype == "xss" and staticFilename:
+            result['xss'] = self.matchXSS(fu[0].content, fu[0].headers, contentTypes, matchStrings)
+            result['url'] = fu[0].request.url
+
+        uploadRes = self.isASuccessfulUpload(fu[0].text)
         if not uploadRes:
             return result
 
@@ -404,6 +414,10 @@ class UploadForm:
         result = {"uploaded": False, "codeExec": False, "xss": False}
         # assume that upload was succesful
         result["uploaded"] = True
+
+        if fu[0] and ttype == "xss" and staticFilename:
+            result['xss'] = self.matchXSS(fu[0].content, fu[0].headers, contentTypes, matchStrings)
+            result['url'] = fu[0].request.url
 
         if self.uploadsFolder or codeExecURL:
             url = None

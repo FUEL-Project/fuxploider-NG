@@ -7,6 +7,14 @@
 		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
 		"contentTypes": ["text/html"],
 		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS Filename",
+		"type": "xss",
+		"description" : "Filename with XSS payload.",
+		"filename":"<img src=a onerror=alert(1)>.html",
+		"staticFilename":"True",
+		"matchStrings":["<img src=a onerror=alert(1)>.html"],
+		"contentTypes": ["text/html"],
 	},
 	{
 		"templateName" : "phpinfo",
