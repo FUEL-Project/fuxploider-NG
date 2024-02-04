@@ -363,7 +363,7 @@ class UploadForm:
                     if byte in filename:
                         secondUrl = byte.join(url.split(byte)[:-1])
             elif self.codeExecUrlPattern:
-                url = self.codeExecUrlPattern.replace("$captGroup$", uploadRes)
+                url = self.codeExecUrlPattern.replace("$captGroup$", "")
 
             if url:
                 executedCode = self.detectCodeExec(url, codeExecRegex)

@@ -8,7 +8,7 @@ import getpass
 import json
 import random
 import concurrent.futures
-
+import signal
 import coloredlogs
 import requests
 import sys
@@ -343,7 +343,11 @@ for template in templates:
                     "payloadFilename": template["filename"],
                     "staticFilename": staticFilename
                 })
-               
+def print_results():
+    d = datetime.datetime.now()
+    logging.info("%s entry point(s) found using %s HTTP requests.", nbOfEntryPointsFound, up.httpRequests)
+    print("\nFound the following entry points: ")
+    print(entryPoints)                              
 
 stopThreads = False
 
@@ -411,6 +415,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
                     entryPoints.append(foundEntryPoint)
 
                     if not args.detectAllEntryPoints:
+                        print_results()
+                        os.kill(os.getpid(), signal.SIGTERM)
                         raise KeyboardInterrupt
 
     except KeyboardInterrupt:
@@ -424,8 +430,4 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.nbThreads) as execut
 
 ################################################################################################################################################
 ################################################################################################################################################
-d = datetime.datetime.now()
-#print("Code exec detection: "+str(d-c))
-logging.info("%s entry point(s) found using %s HTTP requests.", nbOfEntryPointsFound, up.httpRequests)
-print("\nFound the following entry points: ")
-print(entryPoints)
+print_results()
