@@ -1,4 +1,31 @@
 [	{
+		"templateName" : "XSS (GIF)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.gif",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS (PNG)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.png",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS (JPG)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.jpg",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
 		"templateName" : "XSS",
 		"type": "xss",
 		"description" : "Basic HTML file with a simple XSS payload.",
@@ -14,7 +41,7 @@
 		"filename":"<img src=a onerror=alert(1)>.html",
 		"staticFilename":"True",
 		"matchStrings":["<img src=a onerror=alert(1)>.html"],
-		"contentTypes": ["text/html"],
+		"contentTypes": ["text/html"]
 	},
 	{
 		"templateName" : "phpinfo",
