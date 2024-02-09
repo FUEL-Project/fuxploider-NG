@@ -1,10 +1,11 @@
-FROM python:3.6-alpine
-LABEL author="Mostafa Hussein <mostafa.hussein91@gmail.com>"
-RUN apk add --no-cache gcc musl-dev libxml2-dev libxslt-dev openssl
-COPY . /home/fuxploider
-WORKDIR /home/fuxploider
+FROM python:3
+
+RUN apt update -y && apt install -y git vim less
+
+#RUN git clone https://github.com/almandin/fuxploider.git /fuxploider/
+COPY ./ /fuxploider/
+WORKDIR /fuxploider/
 RUN pip3 install -r requirements.txt
-RUN adduser -D fuxploider -H -h /home/fuxploider && chown fuxploider:fuxploider /home/fuxploider -R
-USER fuxploider
-ENTRYPOINT ["python", "fuxploider.py"]
-CMD ["-h"]
+RUN mkdir results
+
+CMD bash -c 'while true; do sleep 1; done'

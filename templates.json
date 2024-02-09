@@ -1,13 +1,66 @@
-[
+[	{
+		"templateName" : "XSS (GIF)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.gif",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS (PNG)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.png",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS (JPG)",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template-xss.jpg",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS",
+		"type": "xss",
+		"description" : "Basic HTML file with a simple XSS payload.",
+		"filename":"template.html",
+		"nastyExt":"html",
+		"matchStrings":["<script>alert(/xss/)</script>","<img src=x onerror=\"alert(1)\">"],
+		"contentTypes": ["text/html"],
+		"extVariants":["htm"]
+	},{
+		"templateName" : "XSS Filename",
+		"type": "xss",
+		"description" : "Filename with XSS payload.",
+		"filename":"<img src=a onerror=alert(1)>.html",
+		"staticFilename":"True",
+		"matchStrings":["<img src=a onerror=alert(1)>.html"],
+		"contentTypes": ["text/html"]
+	},
 	{
 		"templateName" : "phpinfo",
+		"type": "rce",
 		"description" : "Basic php file (plain text) with simple call to phpinfo().",
 		"filename":"template.php",
 		"nastyExt":"php",
 		"codeExecRegex":"\\<title\\>\\s*(PHP\\s*[0-9\\.]+)*\\s*-*\\s*phpinfo\\(\\)<\\/title\\>(.|\n)*\\<h2\\>PHP License\\<\\/h2\\>",
 		"extVariants":["php1","php2","php3","php4","php5","phtml","pht","Php","PhP","pHp","pHp1","pHP2","pHtMl","PHp5"]
 	},{
+		"templateName" : "htaccess",
+		"type": "rce",
+		"description" : "Exploit apache 2.4 misconfiguration by uploading .htaccess file",
+		"filename":".htaccess",
+		"staticFilename":"True",
+		"codeExecRegex":"\\<title\\>\\s*(PHP\\s*[0-9\\.]+)*\\s*-*\\s*phpinfo\\(\\)<\\/title\\>(.|\n)*\\<h2\\>PHP License\\<\\/h2\\>"
+	},{
 		"templateName" : "nastygif",
+		"type": "rce",
 		"description" : "Valid GIF file with basic call to phpinfo() in the comments section of the file",
 		"filename":"template.gif",
 		"nastyExt":"php",
@@ -15,6 +68,7 @@
 		"extVariants":["php1","php2","php3","php4","php5","phtml","pht","Php","PhP","pHp","pHp1","pHP2","pHtMl","PHp5"]
 	},{
 		"templateName" : "nastyjpg",
+		"type": "rce",
 		"description" : "Valid JPG file with basic call to phpinfo() in the comments section of the file",
 		"filename":"template.jpg",
 		"nastyExt":"php",
@@ -22,6 +76,7 @@
 		"extVariants":["php1","php2","php3","php4","php5","phtml","pht","Php","PhP","pHp","pHp1","pHP2","pHtMl","PHp5"]
 	},{
 		"templateName" : "nastypng",
+		"type": "rce",
 		"description" : "Valid PNG file with basic call to phpinfo() in the comments section of the file",
 		"filename":"template.png",
 		"nastyExt":"php",
@@ -30,6 +85,7 @@
 	},
 	{
 		"templateName" : "basicjsp",
+		"type": "rce",
 		"description" : "Basic jsp file with simple mathematical expression.",
 		"filename":"template.jsp",
 		"nastyExt":"jsp",
@@ -38,17 +94,11 @@
 	},
 	{
 		"templateName" : "imagetragick",
+		"type": "rce",
 		"description" : "Attempts to exploit RCE in ImageMagick (CVE-2016–3714)",
 		"filename":"imagemagick_rce.mvg",
 		"codeExecRegex":"ImageTragick Detected!",
 		"codeExecURL":"$uploadFormDir$/$filename$.txt",
 		"dynamicPayload":"True"
-	},
-	{
-		"templateName" : "htaccess",
-		"description" : "Exploit apache 2.4 misconfiguration by uploading .htaccess file",
-		"filename":".htaccess",
-		"staticFilename":"True",
-		"codeExecRegex":"\\<title\\>\\s*(PHP\\s*[0-9\\.]+)*\\s*-*\\s*phpinfo\\(\\)<\\/title\\>(.|\n)*\\<h2\\>PHP License\\<\\/h2\\>"
 	}
 ]
