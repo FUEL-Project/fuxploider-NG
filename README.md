@@ -1,7 +1,7 @@
 Fuxploider-NG
 =====
 
-This is an improved version of [Fuxploider](https://github.com/almandin/fuxploider) with the following improvements:
+Fuxploider-*NG* is an extended version of [Fuxploider](https://github.com/almandin/fuxploider) with the following improvements to increase its UFU vulnerability detection rate:
 
 - Added XSS detection in file names and file content
 - Fixed PHP code in .gif detection
@@ -10,10 +10,46 @@ This is an improved version of [Fuxploider](https://github.com/almandin/fuxploid
 - Added file upload path race condition exploit
 - Added dangerous file extension replacement exploit
 
-The original version of Fuxploider is available at: https://github.com/almandin/fuxploider
+The improvements were implemented for the [evaluation of UFU vulnerability scanners](https://github.com/FUEL-Project/FUEL-Evaluation) using [FUEL](https://github.com/FUEL-Project/FUEL-FileUploadExploitationLab) in the academic publication `Bringing UFUs Back into the Air With FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners` to be published at [DIMVA 2024](https://www.dimva.org/dimva2024/).
 
-# Notice for reviewers
+The original version of Fuxploider is available at [https://github.com/almandin/fuxploider](https://github.com/almandin/fuxploider) and its original README is included below:
+# fuxploider
 
-This README and parts of the repository will be extended with more documentation upon the acceptance of the paper. The brevity is for anonymity reasons.
+[![Python 3.6](https://img.shields.io/badge/python-3.6%20%2B-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPLv3-red.svg)](https://raw.githubusercontent.com/almandin/fuxploider/master/LICENSE.md)
 
-We will publish our improved version in adherence with Fuxploider's license upon the acceptance of the paper.
+Fuxploider is an open source penetration testing tool that automates the process of detecting and exploiting file upload forms flaws. This tool is able to detect the file types allowed to be uploaded and is able to detect which technique will work best to upload web shells or any malicious file on the desired web server.
+
+Screenshots
+----
+![screenshot](screenshot.png)
+
+Installation
+----
+
+_You will need Python 3.6 at least._
+
+    git clone https://github.com/almandin/fuxploider.git
+    cd fuxploider
+    pip3 install -r requirements.txt
+
+If you have problems with pip (and if you use windows apparently) :
+
+    python3 -m pip install -r requirements.txt
+
+For Docker installation
+
+    # Build the docker image
+    docker build -t almandin/fuxploider .
+
+Usage
+----
+
+To get a list of basic options and switches use :
+
+    python3 fuxploider.py -h
+
+Basic example :
+
+    python3 fuxploider.py --url https://awesomeFileUploadService.com --not-regex "wrong file type"
+
+> [!] legal disclaimer : Usage of fuxploider for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
