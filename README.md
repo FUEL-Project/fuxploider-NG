@@ -1,7 +1,7 @@
 Fuxploider-NG
 =====
 
-Fuxploider-*NG* is an extended version of [Fuxploider](https://github.com/almandin/fuxploider) with the following improvements to increase its UFU vulnerability detection rate:
+Fuxploider-*NG* is an extended version of [Fuxploider](https://github.com/almandin/fuxploider) with the following improvements to increase its UFU vulnerability detection capabilities:
 
 - Added XSS detection in file names and file content
 - Fixed PHP code in .gif detection
@@ -10,9 +10,10 @@ Fuxploider-*NG* is an extended version of [Fuxploider](https://github.com/almand
 - Added file upload path race condition exploit
 - Added dangerous file extension replacement exploit
 
-The improvements were implemented for the [evaluation of UFU vulnerability scanners](https://github.com/FUEL-Project/FUEL-Evaluation) using [FUEL](https://github.com/FUEL-Project/FUEL-FileUploadExploitationLab) in the academic publication `Bringing UFUs Back into the Air With FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners` to be published at [DIMVA 2024](https://www.dimva.org/dimva2024/).
+The improvements were implemented for the [evaluation of UFU vulnerability scanners](https://github.com/FUEL-Project/FUEL-Evaluation) using [FUEL](https://github.com/FUEL-Project/FUEL-FileUploadExploitationLab) in the academic publication `Bringing UFUs Back into the Air With FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners` to be published at [DIMVA 2024](https://www.dimva.org/dimva2024/). You can find a preprint of the paper [here](TBD) and the camera-ready version [here](TBD).
 
-The original version of Fuxploider is available at [https://github.com/almandin/fuxploider](https://github.com/almandin/fuxploider) and its original README is included below:
+The original version of Fuxploider authored by `Virgile Jarry` is available at [https://github.com/almandin/fuxploider](https://github.com/almandin/fuxploider) and its original README is included below.
+
 # fuxploider
 
 [![Python 3.6](https://img.shields.io/badge/python-3.6%20%2B-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPLv3-red.svg)](https://raw.githubusercontent.com/almandin/fuxploider/master/LICENSE.md)
