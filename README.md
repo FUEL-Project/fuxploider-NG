@@ -10,7 +10,27 @@ Fuxploider-*NG* is an extended version of [Fuxploider](https://github.com/almand
 - Added file upload path race condition exploit
 - Added dangerous file extension replacement exploit
 
-The improvements were implemented for the [evaluation of UFU vulnerability scanners](https://github.com/FUEL-Project/FUEL-Evaluation) using [FUEL](https://github.com/FUEL-Project/FUEL-FileUploadExploitationLab) in the academic publication `Bringing UFUs Back into the Air With FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners` to be published at [DIMVA 2024](https://www.dimva.org/dimva2024/). You can find a preprint of the paper [here](TBD) and the camera-ready version [here](TBD).
+The improvements were implemented for the [evaluation of UFU vulnerability scanners](https://github.com/FUEL-Project/FUEL-Evaluation) using [FUEL](https://github.com/FUEL-Project/FUEL-FileUploadExploitationLab) in the academic publication `Bringing UFUs Back into the Air With FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners` to be published at [DIMVA 2024](https://www.dimva.org/dimva2024/). You can find a preprint of the paper [here](https://arxiv.org/abs/2405.16619) and the camera-ready version [here](https://doi.org/10.1007/978-3-031-64171-8_11).
+
+Please cite this paper as:
+
+```
+@InProceedings{10.1007/978-3-031-64171-8_11,
+author="Neef, Sebastian
+and Oudeh, Maath",
+editor="Maggi, Federico
+and Egele, Manuel
+and Payer, Mathias
+and Carminati, Michele",
+title="Bringing UFUs Back into the Air with FUEL: A Framework for Evaluating the Effectiveness of Unrestricted File Upload Vulnerability Scanners",
+booktitle="Detection of Intrusions and Malware, and Vulnerability Assessment",
+year="2024",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="207--226",
+isbn="978-3-031-64171-8"
+}
+```
 
 The original version of Fuxploider authored by `Virgile Jarry` is available at [https://github.com/almandin/fuxploider](https://github.com/almandin/fuxploider) and its original README is included below.
 
